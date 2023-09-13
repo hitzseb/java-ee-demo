@@ -7,30 +7,36 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO {
-    private String jdbcURL = "jdbc:mysql://localhost/test";
-    private String jdbcUsername = "root";
-    private String jdbcPassword = "";
+	private String jdbcURL = "jdbc:mysql://localhost/test";
+	private String jdbcUsername = "root";
+	private String jdbcPassword = "";
 
-    private static final String INSERT_USER_SQL = "INSERT INTO USER (username, password) VALUES (?, ?)";
+	private static final String INSERT_USER_SQL = "INSERT INTO USER (username, password) VALUES (?, ?)";
 
-    private static final String SELECT_USER_BY_USERNAME = "SELECT * FROM USER WHERE username = ?";
-    
-    public UserDAO() {
-    }
+	private static final String SELECT_USER_BY_USERNAME = "SELECT * FROM USER WHERE USERNAME = ?";
 
-    protected Connection getConnection() {
-        Connection connection = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+	public UserDAO() {
+	}
+
+	protected Connection getConnection() {
+		Connection connection = null;
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+		} catch (SQLException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return connection;
+	}
+
+	public boolean insertUser(String username, String password) {
+		boolean success = false;
+
+    	User existingUser = getUserByUsername(username);
+        if (existingUser != null) {
+            throw new UserAlreadyExistsException("Username '" + username + "' is already taken.");
         }
-        return connection;
-    }
-
-    public boolean insertUser(String username, String password) {
-        boolean success = false;
+    	
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
 
@@ -41,14 +47,14 @@ public class UserDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return success;
-    }
-    
+		return success;
+	}
+
     public User getUserByUsername(String username) {
         User user = null;
-        try (Connection connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+        try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_USERNAME)) {
-
+        	
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -65,6 +71,5 @@ public class UserDAO {
         }
         return user;
     }
-    
-}
 
+}
