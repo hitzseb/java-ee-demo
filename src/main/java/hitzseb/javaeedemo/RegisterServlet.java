@@ -16,13 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private UserDAO userDAO;
 
-    public RegisterServlet() {
-        super();
-        userDAO = new UserDAO();
-    }
+	public RegisterServlet() {
+		super();
+		userDAO = new UserDAO();
+	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -35,10 +35,10 @@ public class RegisterServlet extends HttpServlet {
 		String password1 = request.getParameter("password1");
 		String password2 = request.getParameter("password2");
 		if (!password1.equals(password2)) {
-		    request.setAttribute("passwordMismatch", true);
-		    request.getRequestDispatcher("/register.jsp").forward(request, response);
+			request.setAttribute("passwordMismatch", true);
+			request.getRequestDispatcher("/register.jsp").forward(request, response);
 		}
-		
+
 		try {
 			userDAO.insertUser(username, PasswordHasher.hashPassword(password1));
 			response.sendRedirect(request.getContextPath() + "/login.jsp");

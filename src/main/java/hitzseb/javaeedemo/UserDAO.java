@@ -32,44 +32,44 @@ public class UserDAO {
 	public boolean insertUser(String username, String password) {
 		boolean success = false;
 
-    	User existingUser = getUserByUsername(username);
-        if (existingUser != null) {
-            throw new UserAlreadyExistsException("Username '" + username + "' is already taken.");
-        }
-    	
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
+		User existingUser = getUserByUsername(username);
+		if (existingUser != null) {
+			throw new UserAlreadyExistsException("Username '" + username + "' is already taken.");
+		}
 
-            preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
+		try (Connection connection = getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
 
-            success = preparedStatement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+			preparedStatement.setString(1, username);
+			preparedStatement.setString(2, password);
+
+			success = preparedStatement.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return success;
 	}
 
-    public User getUserByUsername(String username) {
-        User user = null;
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_USERNAME)) {
-        	
-            preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
+	public User getUserByUsername(String username) {
+		User user = null;
+		try (Connection connection = getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_USERNAME)) {
 
-            if (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String fetchedUsername = resultSet.getString("username");
-                String password = resultSet.getString("password");
+			preparedStatement.setString(1, username);
+			ResultSet resultSet = preparedStatement.executeQuery();
 
-                user = new User(id, fetchedUsername, password);
-            }
+			if (resultSet.next()) {
+				int id = resultSet.getInt("id");
+				String fetchedUsername = resultSet.getString("username");
+				String password = resultSet.getString("password");
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return user;
-    }
+				user = new User(id, fetchedUsername, password);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return user;
+	}
 
 }
